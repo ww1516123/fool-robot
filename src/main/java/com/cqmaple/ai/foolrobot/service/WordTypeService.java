@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -24,6 +28,10 @@ public class WordTypeService {
         }
         wordTypeDao.save(wordType);
 
+    }
+
+    public List<WordType> findAll() {
+        return wordTypeDao.findAll();
     }
 
 }
