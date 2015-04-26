@@ -18,6 +18,7 @@ public class TalkController {
     private String home(){
         return "talk/home";
     }
+
     @RequestMapping("/say")
     @ResponseBody
     private String say(String question){
@@ -30,5 +31,7 @@ public class TalkController {
         }
         return "";
     }
+
+
 
 }

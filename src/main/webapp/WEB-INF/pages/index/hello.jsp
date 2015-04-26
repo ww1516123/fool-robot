@@ -11,6 +11,14 @@
     <title></title>
 </head>
 <body>
-Hello  index
+<h1>welecome to maple robot home </h1>
+
+<form action="/spi/talk/addWordType">
+    <p>
+        <label>词语类型</label>
+        <input type="text" name="name" >
+    </p>
+
+</form>
 </body>
 </html>
