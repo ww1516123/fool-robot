@@ -1,5 +1,6 @@
 package com.cqmaple.ai.foolrobot.service;
 
+import com.cqmaple.ai.foolrobot.common.DuplicateException;
 import com.cqmaple.ai.foolrobot.dao.WordsDao;
 import com.cqmaple.ai.foolrobot.model.Words;
 import org.springframework.data.domain.Page;
@@ -19,11 +20,12 @@ public class WordService {
     private WordsDao wordsDao;
 
     @Transactional(readOnly = false)
-    public void save(Words words){
-
+    public void save(Words words) throws DuplicateException {
+        if(wordsDao.findByWordsOrEWords(words.geteWords(),words.geteWords())!=null){
+            throw new DuplicateException(Words.class,"words");
+        }
         wordsDao.save(words);
     }
-
     /**
      * 获取所有词语
      * @param pageable

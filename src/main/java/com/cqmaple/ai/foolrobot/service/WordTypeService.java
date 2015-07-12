@@ -30,6 +30,10 @@ public class WordTypeService {
 
     }
 
+    public WordType findByName(String name){
+        return this.wordTypeDao.findByName(name);
+    }
+
     public List<WordType> findAll() {
         return wordTypeDao.findAll();
     }
