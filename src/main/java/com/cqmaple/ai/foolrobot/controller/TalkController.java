@@ -8,6 +8,7 @@ import com.cqmaple.ai.foolrobot.dao.WordTypeDao;
 import com.cqmaple.ai.foolrobot.model.WordType;
 import com.cqmaple.ai.foolrobot.service.WordService;
 import com.cqmaple.ai.foolrobot.service.WordTypeService;
+import com.cqmaple.ai.foolrobot.tools.AutoSaveWordThread;
 import com.cqmaple.ai.foolrobot.tools.ConnectHelper;
 import com.cqmaple.ai.foolrobot.tools.QuestionDTO;
 import org.ansj.domain.Term;
@@ -44,23 +45,33 @@ public class TalkController {
     @RequestMapping("/question")
     @ResponseBody
     private String question(String question){
+        ResponseMsg responseMsg=new ResponseMsg();
         if(question==null||"".equals(question)){
-            return "显然我不知道你在说什么";
+            responseMsg.setMsg("显然我不知道你在说什么");
+            responseMsg.setState(responseMsg.ERROR);
+            return responseMsg.toString();
         }
         String html=ConnectHelper.BDZD(question);
-        QuestionDTO questionDTO=ConnectHelper.getBestAnswer(ConnectHelper.getPageQA(html));
-//        List<Term> terms=ToAnalysis.parse(question);
-//        for (Term term:terms){
-//
-//        }
-        return  questionDTO.getAnswer();
+        List<QuestionDTO> questionDTOs=ConnectHelper.getPageQA(html);
+        QuestionDTO questionDTO=ConnectHelper.getBestAnswer(questionDTOs);
+        AutoSaveWordThread wordThread=new AutoSaveWordThread(this.wordService,questionDTOs,question);
+        //启动后台线程进行后台处理
+        Thread thread=new Thread(wordThread);
+        thread.start();
+
+        responseMsg.setMsg(questionDTO.getAnswer());
+        return responseMsg.toString();
     }
 
     @RequestMapping("/say")
     @ResponseBody
     private String say(String question){
+        ResponseMsg responseMsg=new ResponseMsg();
         if(question==null||"".equals(question)){
-                return "显然我不知道你在说什么";
+
+            responseMsg.setMsg("显然我不知道你在说什么");
+            responseMsg.setState(responseMsg.ERROR);
+            return responseMsg.toString();
         }
         List<Term> terms=ToAnalysis.parse(question);
         for (Term term:terms){

@@ -21,7 +21,8 @@ public class WordService {
 
     @Transactional(readOnly = false)
     public void save(Words words) throws DuplicateException {
-        if(wordsDao.findByWordsOrEWords(words.geteWords(),words.geteWords())!=null){
+
+        if(wordsDao.findByWordsAndEWords(words.getWords(),words.geteWords())!=null){
             throw new DuplicateException(Words.class,"words");
         }
         wordsDao.save(words);

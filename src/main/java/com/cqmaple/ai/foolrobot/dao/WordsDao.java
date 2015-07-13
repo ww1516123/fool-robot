@@ -15,5 +15,5 @@ public interface WordsDao extends PagingAndSortingRepository<Words, Long>,JpaSpe
      * @param words
      * @return
      */
-    public Words findByWordsOrEWords(String words,String eWords);
+    public Words findByWordsAndEWords(String words,String eWords);
 }
