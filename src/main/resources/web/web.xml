@@ -48,6 +48,7 @@
         <url-pattern>/spi/*</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
         <welcome-file>/spi/index/hello</welcome-file>
     </welcome-file-list>
 
