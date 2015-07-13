@@ -49,7 +49,6 @@ public class ConnectHelper {
         httpGet.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.77 Safari/537.1");
         httpGet.setURI(new URI(url));
         CloseableHttpResponse httpResponse=  httpClient.execute(httpGet);
-        System.out.println(httpResponse.getStatusLine());
         HttpEntity httpEntity= httpResponse.getEntity();
         BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(httpEntity.getContent(),"GB2312"));
         StringBuffer result=new StringBuffer("");
@@ -82,7 +81,6 @@ public class ConnectHelper {
         params.add(new BasicNameValuePair("transtype", "trans"));
         httpPost.setEntity(new UrlEncodedFormEntity(params));
         CloseableHttpResponse httpResponse=  httpClient.execute(httpPost);
-        System.out.println(httpResponse.getStatusLine());
         HttpEntity httpEntity= httpResponse.getEntity();
         BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(httpEntity.getContent(),"GB2312"));
         StringBuffer result=new StringBuffer("");
@@ -93,8 +91,6 @@ public class ConnectHelper {
         }
         //System.out.println(result.toString());
         //输出服务器返回的内容
-        System.out.println(result.toString());
-        System.out.println("=====>");
         return result.toString();
     }
 
