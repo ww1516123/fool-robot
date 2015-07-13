@@ -7,13 +7,25 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
  * Created by ranchaowen on 15-4-6.
  */
-
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "classpath*:spring-context-application.xml")
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class,
+        TransactionalTestExecutionListener.class })
 public class TalkControllerTest {
 
     @Before

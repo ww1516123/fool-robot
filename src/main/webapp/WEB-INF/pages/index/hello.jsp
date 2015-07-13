@@ -24,12 +24,23 @@
             $("#submit").click(function () {
                 var url='<%=path%>/spi/talk/addWordType';
                var data= $("#form").serialize();
-                $.getJSON(url,function(data){
-                    if(data&&data.state){
-                        alert(data.msg);
-                        $("#form").reset();
-                    }else{
-                        alert(data.msg);
+                $.ajax({
+                    type: "post",
+                    url: url,
+                    data: data,
+                    //contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        if(data.state){
+                            alert(data.msg);
+                            $("#submit").reset();
+                        }else{
+                            alert(data.msg);
+                        }
+
+                    },
+                    error: function (msg) {
+                        alert(msg);
                     }
                 });
             });
