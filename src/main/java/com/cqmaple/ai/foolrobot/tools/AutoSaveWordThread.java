@@ -53,11 +53,11 @@ public class AutoSaveWordThread implements  Runnable {
                     words.seteWords(en);
                     wordService.save(words);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                   // e.printStackTrace();
                 } catch (URISyntaxException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }catch (DuplicateException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }
         }
