@@ -134,8 +134,12 @@ public class ConnectHelper {
                         who = inf.text();
                         break;
                     case 2:
-                        moreHref = inf.getElementsByTag("a").get(0).attr("href");
-                        how = inf.text();
+                        try {
+                            moreHref = inf.getElementsByTag("a").get(0).attr("href");
+                            how = inf.text();
+                        }catch (Exception e1){
+
+                        }
                         break;
                     case 3:
                         sart = inf.text();
