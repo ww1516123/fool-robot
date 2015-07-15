@@ -23,8 +23,10 @@ public class WordService {
     public void save(Words words) throws DuplicateException {
 
         if(wordsDao.findByWordsAndEWords(words.getWords(),words.geteWords())!=null){
+            System.out.println(Thread.currentThread().getName()+"==========>重复词语:" + words.getWords()+"英文:"+words.geteWords());
             throw new DuplicateException(Words.class,"words");
         }
+        System.out.println(Thread.currentThread().getName()+"==========>开始保存" + words.getWords()+"英文:"+words.geteWords());
         wordsDao.save(words);
     }
     /**

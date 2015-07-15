@@ -63,9 +63,8 @@ public class WordController {
     private String all(int page,int size){
         PageRequest request=new PageRequest(page,size);
         Page<Words> alls=wordService.findAll(request);
-        System.out.println(alls.getContent());
         JSONArray array=new JSONArray();
         array.addAll(alls.getContent());
-        return array.toJSONString();
+        return "{\"total\":"+alls.getTotalPages()+",\"data\":"+array.toJSONString()+"}";
     }
 }

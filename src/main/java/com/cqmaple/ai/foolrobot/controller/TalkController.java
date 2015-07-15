@@ -10,6 +10,7 @@ import com.cqmaple.ai.foolrobot.service.WordService;
 import com.cqmaple.ai.foolrobot.service.WordTypeService;
 import com.cqmaple.ai.foolrobot.tools.AutoSaveWordThread;
 import com.cqmaple.ai.foolrobot.tools.ConnectHelper;
+import com.cqmaple.ai.foolrobot.tools.LoopQuestion;
 import com.cqmaple.ai.foolrobot.tools.QuestionDTO;
 import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.ToAnalysis;
@@ -63,6 +64,23 @@ public class TalkController {
         return responseMsg.toString();
     }
 
+    @RequestMapping("/loop")
+    @ResponseBody
+    private String loop(String question){
+        ResponseMsg responseMsg=new ResponseMsg();
+        if(question==null||"".equals(question)){
+            responseMsg.setMsg("显然我不知道你在说什么");
+            responseMsg.setState(responseMsg.ERROR);
+            return responseMsg.toString();
+        }
+        LoopQuestion loopQuestion=new LoopQuestion(wordService,question);
+        //启动后台线程进行后台处理
+        Thread thread=new Thread(loopQuestion);
+        thread.start();
+
+        responseMsg.setMsg("运行开始");
+        return responseMsg.toString();
+    }
     @RequestMapping("/say")
     @ResponseBody
     private String say(String question){
