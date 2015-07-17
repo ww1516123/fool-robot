@@ -188,13 +188,7 @@ public class ConnectHelper {
     }
 
     public static void main(String args[]) throws URISyntaxException, IOException {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("question", "session-get");
-        try {
-            httpPostWithJSON("http://192.168.2.208:9091/transmission/rpc",jsonObject.toJSONString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
 
 
 
