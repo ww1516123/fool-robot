@@ -6,37 +6,47 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.entity.HttpEntityWrapper;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.*;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import sun.net.www.http.HttpClient;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by ranchaowen on 15/7/12.
  */
 public class ConnectHelper {
+
+    // 浏览器Agent
+    public static String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.151 Safari/535.19";
     private static final String BDZD_URL="http://zhidao.baidu.com/search?word=";
     public static String doGet(String url) throws URISyntaxException, IOException {
         CloseableHttpClient httpClient=HttpClients.createDefault();
@@ -94,7 +104,7 @@ public class ConnectHelper {
         return result.toString();
     }
 
-    public static String BDZD(String askMsg){
+    public static  synchronized  String BDZD(String askMsg){
         try {
             return doGet(BDZD_URL+askMsg);
         } catch (URISyntaxException e) {
@@ -146,7 +156,9 @@ public class ConnectHelper {
                         break;
                 }
             }
+
             QuestionDTO questionDTO = new QuestionDTO(question, answerStr, time, who, how, moreHref, sart);
+            System.out.println("解析最后 ：：：："+questionDTO.toString());
             results.add(questionDTO);
         }
         return results;
@@ -176,9 +188,75 @@ public class ConnectHelper {
     }
 
     public static void main(String args[]) throws URISyntaxException, IOException {
-            ConnectHelper connectHelper=new ConnectHelper();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("question", "session-get");
+        try {
+            httpPostWithJSON("http://192.168.2.208:9091/transmission/rpc",jsonObject.toJSONString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        CloseableHttpClient httpclient = HttpClientBuilder.create().build();
+//        List <NameValuePair> params = new ArrayList<NameValuePair>();
+//        params.add(new BasicNameValuePair("method", "session-get"));;
+//      HttpPost httppost = new HttpPost("http://192.168.2.208:9091/transmission/rpc");
+//        JSONObject jsonObject = new JSONObject();
+//        jsonObject.put("question", "session-get");
+//        StringEntity stringEntity=new StringEntity(jsonObject.toJSONString());
+//        stringEntity.setContentType("text/json");
+//        stringEntity.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+//        httppost.setEntity(stringEntity);
+//        httppost.setHeader("Accept", "application/json, text/javascript, */*; q=0.01");
+//        httppost.setHeader(HTTP.CONTENT_TYPE, "application/json");
+//        httppost.setHeader("X-Requested-With", "XMLHttpRequest");
+//        httppost.setHeader(" Accept-Encoding", "gzip, deflate");
+//
+//        //httppost.setEntity(new UrlEncodedFormEntity(params));
+//        CloseableHttpResponse response = httpclient.execute(httppost);
+//        System.out.println(response.toString());
+//        HttpEntity entity = response.getEntity();
+//        String jsonStr = EntityUtils.toString(entity, "utf-8");
+//        System.out.println(jsonStr);
+//        httppost.releaseConnection();
 
-//        String html=connectHelper.BDZD("开心网");
+//        String html=transmissionGetAll("http://127.0.0.1:8080/ai/spi/talk/question", 9091, "maple", "151511", null);
+//        html=html.substring(html.indexOf("X-Transmission-Session-Id: "));
+//        String sessionId = html.replace("</code></p>", "").replace("X-Transmission-Session-Id: ", "");
+//        html=transmissionGetAll("http://127.0.0.1:8080/ai/spi/talk/question", 9091, "maple", "151511", sessionId);
+//        System.out.println(html);
+        //    String html=connectHelper.doGet("http://192.168.2.208:9091/");
+
+//        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+//        credsProvider.setCredentials(
+//                new AuthScope("192.168.2.208",9091),
+//                new UsernamePasswordCredentials("maple","151511"));
+//        httpClient.setCredentialsProvider(credsProvider);
+//        HttpHost proxy = new HttpHost("192.168.2.208",9091, "http");
+//        httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+//        HttpGet httpGet=new HttpGet();
+//        httpGet.setHeader("Accept", "Accept text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+//        httpGet.setHeader("Accept-Charset", "gbk,utf-8;q=0.7,*;q=0.7");
+//        httpGet.setHeader("Accept-Language", "zh-cn,zh;q=0.5");
+//        httpGet.setHeader("http.protocol.allow-circular-redirects", "true");
+//        httpClient.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
+//
+//        httpGet.setHeader("Content-Type", "application/json; charset=utf-8");
+//        httpGet.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.77 Safari/537.1");
+//        httpGet.setURI(new URI("http://192.168.2.208:9091/"));
+//        CloseableHttpResponse httpResponse=  httpClient.execute(httpGet);
+//        System.out.println(httpResponse.getStatusLine());
+//        HttpEntity httpEntity= httpResponse.getEntity();
+//        BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(httpEntity.getContent(),"GB2312"));
+//        StringBuffer result=new StringBuffer("");
+//        String line=""; //每次读取一行数据
+//        while((line=bufferedReader.readLine()) != null){
+//            result.append(line+"\n");
+//            //System.out.println(new String(line.getBytes(),"GBK"));
+//        }
+        //System.out.println(result.toString());
+        //输出服务器返回的内容
+        //System.out.println("==================" + getAllRedirectLocations);
+
+        //UsernamePasswordCredentials usernamePasswordCredentials=new UsernamePasswordCredentials("maple","151511");
 ////            for (QuestionDTO questionDTO:getPageQA(html)) {
 ////                System.out.println("==================");
 ////                System.out.println("问题:"+questionDTO.getQuestion());
@@ -208,4 +286,113 @@ public class ConnectHelper {
 
     }
 
+    public static String transmissionGetAll(String ipaddr,int port,String username,String passowrd,String sessionId){
+        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+        credsProvider.setCredentials(
+                new AuthScope(ipaddr, port),
+                new UsernamePasswordCredentials(username, passowrd));
+        HttpClientBuilder httpClientBuilder= HttpClients
+                .custom();
+        httpClientBuilder.setDefaultCredentialsProvider(credsProvider);
+        CloseableHttpClient httpClient =
+                httpClientBuilder.setUserAgent(USER_AGENT)
+                        .setDefaultRequestConfig(
+                                RequestConfig.custom()
+                                        .setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY)
+                                        .build()).build();
+        HttpPost httpPost=new HttpPost(ipaddr);
+        httpPost.setHeader("Accept", "application/json, text/javascript, */*; q=0.01");
+        httpPost.setHeader(HTTP.CONTENT_TYPE, "application/json");
+        httpPost.setHeader("X-Requested-With", "XMLHttpRequest");
+        httpPost.setHeader(" Accept-Encoding", "gzip, deflate");
+        httpPost.setHeader("Authorization", "Basic "+ Base64.getEncoder().encodeToString(new String(username+":"+passowrd).getBytes()));
+        List <NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("question", "session-get"));;
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("question", "session-get");
+            StringEntity stringEntity=new StringEntity(jsonObject.toJSONString());
+            stringEntity.setContentType("text/json");
+            stringEntity.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+            httpPost.setEntity(stringEntity);
+            httpPost.setEntity(new UrlEncodedFormEntity(params));
+            if(sessionId!=null){
+                httpPost.setHeader("X-Transmission-Session-Id", sessionId);
+            }
+            CloseableHttpResponse httpResponse=  httpClient.execute(httpPost);
+            return getReuestHTML(httpResponse);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    /**
+     * 根据给定的链接获取所有的重定向位置
+     * @param link 给定的链接
+     * @return
+     * @throws ClientProtocolException
+     * @throws IOException
+     */
+    public static List<URI> getAllRedirectLocations(CloseableHttpClient httpClient,String link) throws ClientProtocolException, IOException{
+        List<URI> redirectLocations = null;
+        CloseableHttpResponse response = null;
+        try{
+            HttpClientContext context = HttpClientContext.create();
+            HttpGet httpGet = new HttpGet(link);
+            response = httpClient.execute(httpGet, context);
+
+            // 获取所有的重定向位置
+            redirectLocations = context.getRedirectLocations();
+        } finally{
+            HttpEntity httpEntity= response.getEntity();
+        BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(httpEntity.getContent(),"GB2312"));
+        StringBuffer result=new StringBuffer("");
+        String line=""; //每次读取一行数据
+        while((line=bufferedReader.readLine()) != null){
+            result.append(line+"\n");
+            //System.out.println(new String(line.getBytes(),"GBK"));
+        }
+            System.out.println(result.toString());
+            if(response!=null){
+                response.close();
+            }
+        }
+        return redirectLocations;
+    }
+
+    public  static  String getReuestHTML( CloseableHttpResponse httpResponse) throws IOException {
+        HttpEntity httpEntity= httpResponse.getEntity();
+        BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(httpEntity.getContent(),"GB2312"));
+        StringBuffer result=new StringBuffer("");
+        String line=""; //每次读取一行数据
+        while((line=bufferedReader.readLine()) != null){
+            result.append(line+"\n");
+            //System.out.println(new String(line.getBytes(),"GBK"));
+        }
+        //System.out.println(result.toString());
+        //输出服务器返回的内容
+        return result.toString();
+    }
+    private static final String APPLICATION_JSON = "application/json";
+
+    private static final String CONTENT_TYPE_TEXT_JSON = "text/json";
+    public static void httpPostWithJSON(String url, String json) throws Exception {
+
+        // 将JSON进行UTF-8编码,以便传输中文
+        String encoderJson = URLEncoder.encode(json, HTTP.UTF_8);
+
+        DefaultHttpClient httpClient = new DefaultHttpClient();
+        HttpPost httpPost = new HttpPost(url);
+        httpPost.addHeader(HTTP.CONTENT_TYPE, APPLICATION_JSON);
+        httpPost.addHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString(new String("maple:151511").getBytes()));
+        httpPost.addHeader("X-Transmission-Session-Id", "WM5Kbev30IzLnehPHKoTR0TOhHbaQN9elutYbPpJqUF9mfJA");
+        StringEntity se = new StringEntity(encoderJson);
+        se.setContentType(CONTENT_TYPE_TEXT_JSON);
+        se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, APPLICATION_JSON));
+        httpPost.setEntity(se);
+        System.out.println();
+    }
 }

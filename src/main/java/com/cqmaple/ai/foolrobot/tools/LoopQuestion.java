@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class LoopQuestion implements Runnable {
     private WordService wordService;
     private Set<String> inserted=new HashSet<String>();
+    private Set<String> saved=new HashSet<String>();
     private BlockingQueue queue = new LinkedBlockingQueue();
     private String word;
     private ThreadPoolExecutor threadPoolExecutor=new ThreadPoolExecutor(10,50,1,TimeUnit.MINUTES,queue);
@@ -29,6 +30,7 @@ public class LoopQuestion implements Runnable {
     @Override
     public void run() {
         String html = ConnectHelper.BDZD(word);
+        inserted.add(word);
         List<QuestionDTO> questionDTOs= ConnectHelper.getPageQA(html);
         int i=0;
         for(QuestionDTO questionDTO:questionDTOs){
@@ -39,15 +41,16 @@ public class LoopQuestion implements Runnable {
                 if(chinese.length()>1){
                     if (LanguageHelper.isChinese(chinese)) {
                         if(i>10){
-                            CollectThread collectThread=new CollectThread(this.wordService,chinese,inserted);
-                            threadPoolExecutor.execute(collectThread);
                             break;
                         }
+                        CollectThread collectThread=new CollectThread(this.wordService,chinese,inserted,saved);
+                        threadPoolExecutor.execute(collectThread);
+
                         i++;
                     }
                 }
             }
-            if(i>5){
+            if(i>10){
                 break;
             }
         }

@@ -80,4 +80,17 @@ public class QuestionDTO {
     public void setSart(String sart) {
         this.sart = sart;
     }
+
+    @Override
+    public String toString() {
+        return "QuestionDTO{" +
+                "question='" + question + '\'' +
+                ", answer='" + answer + '\'' +
+                ", time='" + time + '\'' +
+                ", who='" + who + '\'' +
+                ", how='" + how + '\'' +
+                ", moreHref='" + moreHref + '\'' +
+                ", sart='" + sart + '\'' +
+                '}';
+    }
 }
