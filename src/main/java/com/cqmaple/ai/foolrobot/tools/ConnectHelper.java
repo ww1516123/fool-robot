@@ -195,92 +195,6 @@ public class ConnectHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        CloseableHttpClient httpclient = HttpClientBuilder.create().build();
-//        List <NameValuePair> params = new ArrayList<NameValuePair>();
-//        params.add(new BasicNameValuePair("method", "session-get"));;
-//      HttpPost httppost = new HttpPost("http://192.168.2.208:9091/transmission/rpc");
-//        JSONObject jsonObject = new JSONObject();
-//        jsonObject.put("question", "session-get");
-//        StringEntity stringEntity=new StringEntity(jsonObject.toJSONString());
-//        stringEntity.setContentType("text/json");
-//        stringEntity.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-//        httppost.setEntity(stringEntity);
-//        httppost.setHeader("Accept", "application/json, text/javascript, */*; q=0.01");
-//        httppost.setHeader(HTTP.CONTENT_TYPE, "application/json");
-//        httppost.setHeader("X-Requested-With", "XMLHttpRequest");
-//        httppost.setHeader(" Accept-Encoding", "gzip, deflate");
-//
-//        //httppost.setEntity(new UrlEncodedFormEntity(params));
-//        CloseableHttpResponse response = httpclient.execute(httppost);
-//        System.out.println(response.toString());
-//        HttpEntity entity = response.getEntity();
-//        String jsonStr = EntityUtils.toString(entity, "utf-8");
-//        System.out.println(jsonStr);
-//        httppost.releaseConnection();
-
-//        String html=transmissionGetAll("http://127.0.0.1:8080/ai/spi/talk/question", 9091, "maple", "151511", null);
-//        html=html.substring(html.indexOf("X-Transmission-Session-Id: "));
-//        String sessionId = html.replace("</code></p>", "").replace("X-Transmission-Session-Id: ", "");
-//        html=transmissionGetAll("http://127.0.0.1:8080/ai/spi/talk/question", 9091, "maple", "151511", sessionId);
-//        System.out.println(html);
-        //    String html=connectHelper.doGet("http://192.168.2.208:9091/");
-
-//        CredentialsProvider credsProvider = new BasicCredentialsProvider();
-//        credsProvider.setCredentials(
-//                new AuthScope("192.168.2.208",9091),
-//                new UsernamePasswordCredentials("maple","151511"));
-//        httpClient.setCredentialsProvider(credsProvider);
-//        HttpHost proxy = new HttpHost("192.168.2.208",9091, "http");
-//        httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-//        HttpGet httpGet=new HttpGet();
-//        httpGet.setHeader("Accept", "Accept text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-//        httpGet.setHeader("Accept-Charset", "gbk,utf-8;q=0.7,*;q=0.7");
-//        httpGet.setHeader("Accept-Language", "zh-cn,zh;q=0.5");
-//        httpGet.setHeader("http.protocol.allow-circular-redirects", "true");
-//        httpClient.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
-//
-//        httpGet.setHeader("Content-Type", "application/json; charset=utf-8");
-//        httpGet.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.77 Safari/537.1");
-//        httpGet.setURI(new URI("http://192.168.2.208:9091/"));
-//        CloseableHttpResponse httpResponse=  httpClient.execute(httpGet);
-//        System.out.println(httpResponse.getStatusLine());
-//        HttpEntity httpEntity= httpResponse.getEntity();
-//        BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(httpEntity.getContent(),"GB2312"));
-//        StringBuffer result=new StringBuffer("");
-//        String line=""; //每次读取一行数据
-//        while((line=bufferedReader.readLine()) != null){
-//            result.append(line+"\n");
-//            //System.out.println(new String(line.getBytes(),"GBK"));
-//        }
-        //System.out.println(result.toString());
-        //输出服务器返回的内容
-        //System.out.println("==================" + getAllRedirectLocations);
-
-        //UsernamePasswordCredentials usernamePasswordCredentials=new UsernamePasswordCredentials("maple","151511");
-////            for (QuestionDTO questionDTO:getPageQA(html)) {
-////                System.out.println("==================");
-////                System.out.println("问题:"+questionDTO.getQuestion());
-////                System.out.println("==================");
-////                System.out.println("答案:"+questionDTO.getAnswer());
-////                System.out.println("=======END===========");
-////            }
-//        QuestionDTO questionDTO=getBestAnswer(getPageQA(html));
-//        System.out.println("===最佳答案为:===============");
-//        System.out.println("问题:"+questionDTO.getQuestion());
-//        System.out.println("==================");
-//        System.out.println("答案:"+questionDTO.getAnswer());
-//        System.out.println("=======END===========");
-
-//            System.out.println("==================");
-//            System.out.println("问题:"+question);
-//            System.out.println("==================");
-//            System.out.println("答案:"+answerStr);
-//            System.out.println("==================");
-//            System.out.println("info: 于"+time+" 由 "+who+" 等回答 共"+how+" 点赞"+sart);
-//            System.out.println("更多信息 地址:"+moreHref);
-//            System.out.println("=======END===========");
-//            System.out.println();
-//            System.out.println();
 
 
 
@@ -376,23 +290,5 @@ public class ConnectHelper {
         //输出服务器返回的内容
         return result.toString();
     }
-    private static final String APPLICATION_JSON = "application/json";
 
-    private static final String CONTENT_TYPE_TEXT_JSON = "text/json";
-    public static void httpPostWithJSON(String url, String json) throws Exception {
-
-        // 将JSON进行UTF-8编码,以便传输中文
-        String encoderJson = URLEncoder.encode(json, HTTP.UTF_8);
-
-        DefaultHttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(url);
-        httpPost.addHeader(HTTP.CONTENT_TYPE, APPLICATION_JSON);
-        httpPost.addHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString(new String("maple:151511").getBytes()));
-        httpPost.addHeader("X-Transmission-Session-Id", "WM5Kbev30IzLnehPHKoTR0TOhHbaQN9elutYbPpJqUF9mfJA");
-        StringEntity se = new StringEntity(encoderJson);
-        se.setContentType(CONTENT_TYPE_TEXT_JSON);
-        se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, APPLICATION_JSON));
-        httpPost.setEntity(se);
-        System.out.println();
-    }
 }
