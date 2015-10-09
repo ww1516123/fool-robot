@@ -20,8 +20,13 @@ public class LoopQuestion implements Runnable {
     private Set<String> inserted=new HashSet<String>();
     private Set<String> saved=new HashSet<String>();
     private BlockingQueue queue = new LinkedBlockingQueue();
+    private HtmlContents htmlcs=new HtmlContents();
+    private Answers answers=new Answers();
     private String word;
+
     private ThreadPoolExecutor threadPoolExecutor=new ThreadPoolExecutor(10,50,1,TimeUnit.MINUTES,queue);
+    private ThreadPoolExecutor resolveThreads=new ThreadPoolExecutor(5,20,1,TimeUnit.MINUTES,queue);
+    private ThreadPoolExecutor saveThreads=new ThreadPoolExecutor(1,2,1,TimeUnit.MINUTES,queue);
     public LoopQuestion(WordService wordService, String word) {
         this.wordService = wordService;
         this.word = word;
@@ -43,9 +48,8 @@ public class LoopQuestion implements Runnable {
                         if(i>10){
                             break;
                         }
-                        CollectThread collectThread=new CollectThread(this.wordService,chinese,inserted,saved);
+                        CollectThread collectThread=new CollectThread(chinese,inserted,htmlcs);
                         threadPoolExecutor.execute(collectThread);
-
                         i++;
                     }
                 }
@@ -54,5 +58,14 @@ public class LoopQuestion implements Runnable {
                 break;
             }
         }
+        //添加解析线程
+        for (int j = 0; j < 10; j++) {
+            ResolveThread resolveThread=new ResolveThread(answers,htmlcs);
+            resolveThreads.execute(resolveThread);
+        }
+        //添加解析线程
+       SaveThread saveThread=new SaveThread(wordService,answers);
+        saveThreads.execute(saveThread);
+
     }
 }

@@ -15,17 +15,15 @@ import java.util.*;
  * Created by ranchaowen on 15/7/14.
  */
 public class CollectThread implements  Runnable {
-    private WordService wordService;
     private Set<String> inserted;
-    private Set<String> saved;
     private String question;
+    private HtmlContents htmlcs;
     private static Random random = null;
 
-    public CollectThread(WordService wordService,String question,Set<String> inserted,Set<String> saved) {
-        this.wordService = wordService;
+    public CollectThread(String question,Set<String> inserted,HtmlContents htmlcs) {
         this.inserted=inserted;
-        this.saved=saved;
         this.question = question;
+        this.htmlcs=htmlcs;
     }
 
     @Override
@@ -38,34 +36,27 @@ public class CollectThread implements  Runnable {
                 allWords=new String[1];
                 allWords[0]=question;
             }
-            List<QuestionDTO> questionDTOs=null;
+            String lastHtml=null;
             for (String worda:allWords){
                 try {
                     if(!"".equals(worda)){
-                        System.out.println(Thread.currentThread().getName()+"*******************************");
+                        System.out.println(new Date().getTime()+"<<<<<<<<<:::"+Thread.currentThread().getName()+"*******************************");
                         System.out.println(Thread.currentThread().getName()+" 开始查询："+worda);
                         String html ="";
                         Thread.sleep(1000);
-                        synchronized (wordService){
+                        synchronized (htmlcs){
                             html=ConnectHelper.BDZD(worda);
                         }
-                        //System.out.println(Thread.currentThread().getName()+"*******************************");
-                        //System.out.println(Thread.currentThread().getName()+" 查询完毕："+html);
-                        //System.out.println(Thread.currentThread().getName()+" 查询完毕：代码完代码完代码完代码完====");
-                        questionDTOs= ConnectHelper.getPageQA(html);
-                        //saveWords(question);
-                        for (QuestionDTO questionDTO:questionDTOs){
-                            //System.out.println(Thread.currentThread().getName()+"##############开始保存"+questionDTO.toString());
-                            saveWords(questionDTO.getAnswer());
-                            saveWords(questionDTO.getQuestion());
-                        }
+                        htmlcs.getHtmls().add(html);
+                        lastHtml=html;
                     }
                 }catch (Exception e){
                     System.out.println(Thread.currentThread().getName()+"////////////////////////////////");
                     System.out.println(Thread.currentThread().getName()+" 开始查询出错一个："+e.getMessage());
                 }
-
             }
+            List<QuestionDTO> questionDTOs=null;
+            questionDTOs= ConnectHelper.getPageQA(lastHtml);
             if(questionDTOs!=null&&questionDTOs.size()>0){
                 int i=0;
                 for (QuestionDTO questionDTO:questionDTOs){
@@ -93,45 +84,23 @@ public class CollectThread implements  Runnable {
 
             }
         }
-        System.out.println("=========<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-        System.out.println("=========<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-        System.out.println(Thread.currentThread().getName()+"挂啦~~~~");
-        System.out.println("=========<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-        System.out.println("=========<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-    }
-    private void saveWords(String str) {
-        List<Term> terms= ToAnalysis.parse(str);
-        //对提问进行分词
-        for (Term term:terms){
-            String chinese=term.getName();
-            System.out.println("解析到=======================>词语::::"+chinese);
-            if(saved.contains(chinese)){
-                System.out.println("&&&&&&&&&&&&&&&&&&&&&&保存前发现重复+"+chinese);
-                continue;
-            }
-            if(LanguageHelper.isChinese(chinese)){
-                String en= null;
-                try {
-                    en = ConnectHelper.chan2en(chinese);
-                    Words words=new Words();
-                    words.setWords(chinese);
-                    words.seteWords(en);
-                    wordService.save(words);
-                    saved.add(chinese);
-                } catch (IOException e) {
-                    // e.printStackTrace();
-                } catch (URISyntaxException e) {
-                    //e.printStackTrace();
-                }catch (DuplicateException e) {
-                    //e.printStackTrace();
-                }catch (NullPointerException e){
-
-                }catch (Exception e){
-
-                }
-            }
+        for (int i = 0; i < 10; i++) {
+            System.out.println();
+            System.out.println();
+            System.out.println(); System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println("=========<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+            System.out.println("=========<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+            System.out.println(Thread.currentThread().getName()+"挂啦~~~~");
+            System.out.println("=========<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+            System.out.println("=========<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         }
+
     }
+
     private static Random getRandomInstance() {
         if (random == null) {
             random = new Random(new Date().getTime());
