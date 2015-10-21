@@ -32,12 +32,11 @@ public class CollectThread implements  Runnable {
     @Override
     public void run() {
         while (true) {
+            try {
             if(!questions.isEmpty()){
                 List<String> allChinese=new ArrayList<String>(questions);
                for(String question:allChinese){
-                   if(searched.contains(question)){
-                       continue;
-                   }
+                   questions.remove(question);
                    String[] allWords=null;
                    if(question.indexOf(",")>0){
                        allWords=question.split(",");
@@ -49,10 +48,12 @@ public class CollectThread implements  Runnable {
                    for (String worda:allWords){
                        try {
                            if(!"".equals(worda)){
+                               if(searched.contains(worda)){
+                                   continue;
+                               }
                                System.out.println(new Date().getTime()+"<<<<<<<<<:::"+Thread.currentThread().getName()+"*******************************");
                                System.out.println(Thread.currentThread().getName() + " 开始查询：" + worda);
-                               searched.contains(worda);
-                               questions.remove(worda);
+                               searched.add(worda);
                                String html ="";
                                Thread.sleep(1000);
                                synchronized (htmlcs){
@@ -87,6 +88,7 @@ public class CollectThread implements  Runnable {
                                        }
                                        question+=chinese;
                                        inserted.add(chinese);
+                                       questions.add(chinese);
                                        i++;
                                    }
                                }
@@ -99,11 +101,20 @@ public class CollectThread implements  Runnable {
                }
 
             try {
+                System.out.println(Thread.currentThread().getName()+"////////////////////////////////");
+                System.out.println(Thread.currentThread().getName()+"目前 问题个数"+questions.size());
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }catch (Exception e){
+
         }
+            System.out.println(Thread.currentThread().getName()+"////////////////////////////////");
+            System.out.println(Thread.currentThread().getName()+"目前 问题个数"+questions.size());
+
+        }
+
 
     }
 

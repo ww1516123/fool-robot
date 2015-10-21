@@ -23,20 +23,28 @@ public class ResolveThread implements  Runnable {
 
             List<QuestionDTO> questionDTOs=new ArrayList<QuestionDTO>();
             for (String html:htmlContents.getByCount(5)){
-                questionDTOs.addAll(ConnectHelper.getPageQA(html));
+                try {
+                    questionDTOs.addAll(ConnectHelper.getPageQA(html));
+                }catch (Exception e){
+                    System.out.println(Thread.currentThread().getName()+"////////////////////////////////");
+                    System.out.println(Thread.currentThread().getName()+" 解析出错*********************///////////");
+                    System.out.println(Thread.currentThread().getName()+"////////////////////////////////");
+                }
             }
             System.out.println(Thread.currentThread().getName()+"////////////////////////////////");
             System.out.println(Thread.currentThread().getName()+" 批量解析完成=================///////////");
             System.out.println(Thread.currentThread().getName()+"////////////////////////////////");
-            for (QuestionDTO questionDTO:questionDTOs){
-                synchronized (answers){
-                    answers.getCanBeSave().addAll(resolveAnswer(questionDTO));
-                }
-            }
+
+
 
             try {
+                for (QuestionDTO questionDTO:questionDTOs){
+                    synchronized (answers){
+                        answers.getCanBeSave().addAll(resolveAnswer(questionDTO));
+                    }
+                }
                 Thread.sleep(500);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

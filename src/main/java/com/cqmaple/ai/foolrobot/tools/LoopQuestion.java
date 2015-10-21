@@ -26,8 +26,8 @@ public class LoopQuestion implements Runnable {
     private String word;
 
     private ThreadPoolExecutor threadPoolExecutor=new ThreadPoolExecutor(1,1,1,TimeUnit.MINUTES,queue);
-    private ThreadPoolExecutor resolveThreads=new ThreadPoolExecutor(2,2,1,TimeUnit.MINUTES,queue);
-    private ThreadPoolExecutor saveThreads=new ThreadPoolExecutor(1,2,1,TimeUnit.MINUTES,queue);
+    private ThreadPoolExecutor resolveThreads=new ThreadPoolExecutor(1,1,1,TimeUnit.MINUTES,queue);
+    private ThreadPoolExecutor saveThreads=new ThreadPoolExecutor(5,10,1,TimeUnit.MINUTES,queue);
     public LoopQuestion(WordService wordService, String word) {
         this.wordService = wordService;
         this.word = word;
@@ -41,6 +41,7 @@ public class LoopQuestion implements Runnable {
         //解析答案
         List<QuestionDTO> questionDTOs= ConnectHelper.getPageQA(html);
         int i=0;
+        CollectThread collectThread=null;
         for(QuestionDTO questionDTO:questionDTOs){
             //获取单个回答
             String qStr=questionDTO.getAnswer();
@@ -55,8 +56,8 @@ public class LoopQuestion implements Runnable {
                         //开启线程
                         searchChinese.add(chinese);
                     }
-                    CollectThread collectThread=new CollectThread(searchChinese,searched,inserted,htmlcs);
-                    threadPoolExecutor.execute(collectThread);
+                    collectThread =new CollectThread(searchChinese,searched,inserted,htmlcs);
+
 
                 }
             }
@@ -64,15 +65,15 @@ public class LoopQuestion implements Runnable {
                 break;
             }
         }
+        threadPoolExecutor.execute(collectThread);
         answers.setSearchWord(searchChinese);
-        //添加解析线程
-        for (int j = 0; j < 2; j++) {
-            ResolveThread resolveThread=new ResolveThread(answers,htmlcs);
-            resolveThreads.execute(resolveThread);
-        }
-        //添加保存线程
-       SaveThread saveThread=new SaveThread(wordService,answers);
-        saveThreads.execute(saveThread);
 
+        ResolveThread resolveThread=new ResolveThread(answers,htmlcs);
+        resolveThreads.execute(resolveThread);
+        //添加保存线程
+        for (int j = 0; j <5 ; j++) {
+            SaveThread saveThread=new SaveThread(wordService,answers);
+            saveThreads.execute(saveThread);
+        }
     }
 }
