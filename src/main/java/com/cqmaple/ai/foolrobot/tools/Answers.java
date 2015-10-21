@@ -12,11 +12,20 @@ public class Answers {
     private Set<String> canBeSave;
     private Set<String> saved;
     private Set<String> htmls;
+    private Set<String> searchWord;
     public Answers() {
         this.questionDTOs = new HashSet<List<QuestionDTO>>();
         this.canBeSave=new HashSet<String>();
         this.saved=new HashSet<String>();
         this.htmls=new HashSet<String>();
+    }
+
+    public Set<String> getSearchWord() {
+        return searchWord;
+    }
+
+    public void setSearchWord(Set<String> searchWord) {
+        this.searchWord = searchWord;
     }
 
     public synchronized Set<List<QuestionDTO>> getQuestionDTOs() {

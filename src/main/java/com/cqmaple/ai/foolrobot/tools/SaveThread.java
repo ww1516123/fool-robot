@@ -25,14 +25,24 @@ public class SaveThread implements  Runnable {
     @Override
     public void run() {
         while (true){
+            try {
+            System.out.println(new Date().getTime()+"<<<<<<<<<:::"+Thread.currentThread().getName()+"*******************************");
+            System.out.println(Thread.currentThread().getName() + " 开始查询：一轮保存");
             saveWords();
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
     private void saveWords() {
         Set<String> beWords=new HashSet<String>();
         Set<String> canBeSave= answers.getCanBeSave();
+        System.out.println(new Date().getTime()+"<<<<<<<<<:::"+Thread.currentThread().getName()+"*******************************");
+        System.out.println(Thread.currentThread().getName() + " ===========保存单词有："+canBeSave.size());
         if(canBeSave.size()>0){
             beWords.addAll(canBeSave);
+            canBeSave.clear();
         }
         for (String chinese:beWords){
             String en= null;
@@ -42,16 +52,8 @@ public class SaveThread implements  Runnable {
                 words.setWords(chinese);
                 words.seteWords(en);
                 wordService.save(words);
-            } catch (IOException e) {
-                // e.printStackTrace();
-            } catch (URISyntaxException e) {
-                //e.printStackTrace();
-            }catch (DuplicateException e) {
-                //e.printStackTrace();
-            }catch (NullPointerException e){
-
-            }catch (Exception e){
-
+            } catch (Exception e){
+                e.printStackTrace();
             }
         }
 

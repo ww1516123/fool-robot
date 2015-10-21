@@ -18,14 +18,15 @@ import java.util.concurrent.TimeUnit;
 public class LoopQuestion implements Runnable {
     private WordService wordService;
     private Set<String> inserted=new HashSet<String>();
-    private Set<String> saved=new HashSet<String>();
+    private Set<String> searchChinese=new HashSet<String>();
+    private Set<String> searched=new HashSet<String>();
     private BlockingQueue queue = new LinkedBlockingQueue();
     private HtmlContents htmlcs=new HtmlContents();
     private Answers answers=new Answers();
     private String word;
 
-    private ThreadPoolExecutor threadPoolExecutor=new ThreadPoolExecutor(10,50,1,TimeUnit.MINUTES,queue);
-    private ThreadPoolExecutor resolveThreads=new ThreadPoolExecutor(5,20,1,TimeUnit.MINUTES,queue);
+    private ThreadPoolExecutor threadPoolExecutor=new ThreadPoolExecutor(1,1,1,TimeUnit.MINUTES,queue);
+    private ThreadPoolExecutor resolveThreads=new ThreadPoolExecutor(2,2,1,TimeUnit.MINUTES,queue);
     private ThreadPoolExecutor saveThreads=new ThreadPoolExecutor(1,2,1,TimeUnit.MINUTES,queue);
     public LoopQuestion(WordService wordService, String word) {
         this.wordService = wordService;
@@ -34,36 +35,42 @@ public class LoopQuestion implements Runnable {
 
     @Override
     public void run() {
+        //查询答案
         String html = ConnectHelper.BDZD(word);
         inserted.add(word);
+        //解析答案
         List<QuestionDTO> questionDTOs= ConnectHelper.getPageQA(html);
         int i=0;
         for(QuestionDTO questionDTO:questionDTOs){
+            //获取单个回答
             String qStr=questionDTO.getAnswer();
+            //回答分词
             List<Term> terms= ToAnalysis.parse(qStr);
             for (Term term:terms) {
+                //分别入库
                 String chinese = term.getName();
                 if(chinese.length()>1){
+                    //判断是否中文
                     if (LanguageHelper.isChinese(chinese)) {
-                        if(i>10){
-                            break;
-                        }
-                        CollectThread collectThread=new CollectThread(chinese,inserted,htmlcs);
-                        threadPoolExecutor.execute(collectThread);
-                        i++;
+                        //开启线程
+                        searchChinese.add(chinese);
                     }
+                    CollectThread collectThread=new CollectThread(searchChinese,searched,inserted,htmlcs);
+                    threadPoolExecutor.execute(collectThread);
+
                 }
             }
             if(i>10){
                 break;
             }
         }
+        answers.setSearchWord(searchChinese);
         //添加解析线程
-        for (int j = 0; j < 10; j++) {
+        for (int j = 0; j < 2; j++) {
             ResolveThread resolveThread=new ResolveThread(answers,htmlcs);
             resolveThreads.execute(resolveThread);
         }
-        //添加解析线程
+        //添加保存线程
        SaveThread saveThread=new SaveThread(wordService,answers);
         saveThreads.execute(saveThread);
 

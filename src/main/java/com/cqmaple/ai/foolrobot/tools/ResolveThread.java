@@ -22,9 +22,12 @@ public class ResolveThread implements  Runnable {
         while (true){
 
             List<QuestionDTO> questionDTOs=new ArrayList<QuestionDTO>();
-            for (String html:htmlContents.getByCount(10)){
+            for (String html:htmlContents.getByCount(5)){
                 questionDTOs.addAll(ConnectHelper.getPageQA(html));
             }
+            System.out.println(Thread.currentThread().getName()+"////////////////////////////////");
+            System.out.println(Thread.currentThread().getName()+" 批量解析完成=================///////////");
+            System.out.println(Thread.currentThread().getName()+"////////////////////////////////");
             for (QuestionDTO questionDTO:questionDTOs){
                 synchronized (answers){
                     answers.getCanBeSave().addAll(resolveAnswer(questionDTO));
@@ -61,6 +64,9 @@ public class ResolveThread implements  Runnable {
                 continue;
             }
             synchronized (answers){
+                System.out.println(Thread.currentThread().getName()+"========================&&添加词语到查询+" + chinese);
+                answers.getSearchWord().add(chinese);
+                //添加的词语往查询里添加
                 answers.getSaved().add(chinese);
             }
             sets.add(chinese);

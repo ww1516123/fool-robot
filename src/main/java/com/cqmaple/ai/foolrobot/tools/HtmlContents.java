@@ -24,9 +24,12 @@ public class HtmlContents {
         if(htmls.size()>=i){
             for (int j = 0; j < i; j++) {
                 htmlcounts.add(htmls.get(j));
+
+            }
+            for (int j = 0; j <i ; j++) {
+                htmls.remove(0);
             }
         }
-
 
         return  htmlcounts;
     }
