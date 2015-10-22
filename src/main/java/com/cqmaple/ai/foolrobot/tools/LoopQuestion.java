@@ -27,7 +27,7 @@ public class LoopQuestion implements Runnable {
 
     private ThreadPoolExecutor threadPoolExecutor=new ThreadPoolExecutor(1,1,1,TimeUnit.MINUTES,queue);
     private ThreadPoolExecutor resolveThreads=new ThreadPoolExecutor(1,1,1,TimeUnit.MINUTES,queue);
-    private ThreadPoolExecutor saveThreads=new ThreadPoolExecutor(5,10,1,TimeUnit.MINUTES,queue);
+    private ThreadPoolExecutor saveThreads=new ThreadPoolExecutor(2,2,1,TimeUnit.MINUTES,queue);
     public LoopQuestion(WordService wordService, String word) {
         this.wordService = wordService;
         this.word = word;
@@ -71,7 +71,7 @@ public class LoopQuestion implements Runnable {
         ResolveThread resolveThread=new ResolveThread(answers,htmlcs);
         resolveThreads.execute(resolveThread);
         //添加保存线程
-        for (int j = 0; j <5 ; j++) {
+        for (int j = 0; j <2 ; j++) {
             SaveThread saveThread=new SaveThread(wordService,answers);
             saveThreads.execute(saveThread);
         }

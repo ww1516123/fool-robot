@@ -193,50 +193,50 @@ public class ConnectHelper {
 
 
     }
-
-    public static String transmissionGetAll(String ipaddr,int port,String username,String passowrd,String sessionId){
-        CredentialsProvider credsProvider = new BasicCredentialsProvider();
-        credsProvider.setCredentials(
-                new AuthScope(ipaddr, port),
-                new UsernamePasswordCredentials(username, passowrd));
-        HttpClientBuilder httpClientBuilder= HttpClients
-                .custom();
-        httpClientBuilder.setDefaultCredentialsProvider(credsProvider);
-        CloseableHttpClient httpClient =
-                httpClientBuilder.setUserAgent(USER_AGENT)
-                        .setDefaultRequestConfig(
-                                RequestConfig.custom()
-                                        .setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY)
-                                        .build()).build();
-        HttpPost httpPost=new HttpPost(ipaddr);
-        httpPost.setHeader("Accept", "application/json, text/javascript, */*; q=0.01");
-        httpPost.setHeader(HTTP.CONTENT_TYPE, "application/json");
-        httpPost.setHeader("X-Requested-With", "XMLHttpRequest");
-        httpPost.setHeader(" Accept-Encoding", "gzip, deflate");
-        httpPost.setHeader("Authorization", "Basic "+ Base64.getEncoder().encodeToString(new String(username+":"+passowrd).getBytes()));
-        List <NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("question", "session-get"));;
-        try {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("question", "session-get");
-            StringEntity stringEntity=new StringEntity(jsonObject.toJSONString());
-            stringEntity.setContentType("text/json");
-            stringEntity.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-            httpPost.setEntity(stringEntity);
-            httpPost.setEntity(new UrlEncodedFormEntity(params));
-            if(sessionId!=null){
-                httpPost.setHeader("X-Transmission-Session-Id", sessionId);
-            }
-            CloseableHttpResponse httpResponse=  httpClient.execute(httpPost);
-            return getReuestHTML(httpResponse);
-
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//
+//    public static String transmissionGetAll(String ipaddr,int port,String username,String passowrd,String sessionId){
+//        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+//        credsProvider.setCredentials(
+//                new AuthScope(ipaddr, port),
+//                new UsernamePasswordCredentials(username, passowrd));
+//        HttpClientBuilder httpClientBuilder= HttpClients
+//                .custom();
+//        httpClientBuilder.setDefaultCredentialsProvider(credsProvider);
+//        CloseableHttpClient httpClient =
+//                httpClientBuilder.setUserAgent(USER_AGENT)
+//                        .setDefaultRequestConfig(
+//                                RequestConfig.custom()
+//                                        .setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY)
+//                                        .build()).build();
+//        HttpPost httpPost=new HttpPost(ipaddr);
+//        httpPost.setHeader("Accept", "application/json, text/javascript, */*; q=0.01");
+//        httpPost.setHeader(HTTP.CONTENT_TYPE, "application/json");
+//        httpPost.setHeader("X-Requested-With", "XMLHttpRequest");
+//        httpPost.setHeader(" Accept-Encoding", "gzip, deflate");
+//        httpPost.setHeader("Authorization", "Basic "+ Base64.getEncoder().encodeToString(new String(username+":"+passowrd).getBytes()));
+//        List <NameValuePair> params = new ArrayList<NameValuePair>();
+//        params.add(new BasicNameValuePair("question", "session-get"));;
+//        try {
+//            JSONObject jsonObject = new JSONObject();
+//            jsonObject.put("question", "session-get");
+//            StringEntity stringEntity=new StringEntity(jsonObject.toJSONString());
+//            stringEntity.setContentType("text/json");
+//            stringEntity.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+//            httpPost.setEntity(stringEntity);
+//            httpPost.setEntity(new UrlEncodedFormEntity(params));
+//            if(sessionId!=null){
+//                httpPost.setHeader("X-Transmission-Session-Id", sessionId);
+//            }
+//            CloseableHttpResponse httpResponse=  httpClient.execute(httpPost);
+//            return getReuestHTML(httpResponse);
+//
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
     /**
      * 根据给定的链接获取所有的重定向位置
      * @param link 给定的链接
