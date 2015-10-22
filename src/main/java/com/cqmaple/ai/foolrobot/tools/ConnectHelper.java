@@ -176,7 +176,7 @@ public class ConnectHelper {
         return result;
     }
     public static String chan2en(String chinese) throws IOException, URISyntaxException {
-        String results= doGet("http://fanyi.baidu.com/v2transapi?from=zh&query=" + URLEncoder.encode(chinese) + "&simple_means_flag=3&to=en&transtype=trans");
+        String results= doGet("http://fanyi.baidu.com/v2transapi?from=zh&query=" +chinese+ "&simple_means_flag=3&to=en&transtype=trans");
         JSONObject jsonObject=JSONObject.parseObject(results);
 
         JSONObject dict=jsonObject.getJSONObject("trans_result");
