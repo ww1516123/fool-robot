@@ -5,6 +5,7 @@
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:jpa="http://www.springframework.org/schema/data/jpa"
        xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:p="http://www.springframework.org/schema/p"
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
@@ -19,10 +20,10 @@
         ">
     <!-- 使用annotation 自动注册bean, 并保证@Required、@Autowired的属性被注入 -->
    <context:annotation-config/>
-    <context:component-scan base-package="com.cqmaple.ai.foolrobot.dao,com.cqmaple.ai.foolrobot.service"/>
+    <context:component-scan base-package="com.cqmaple.ai.foolrobot.dao,com.cqmaple.ai.foolrobot.service,com.cqmaple.ai.foolrobot.tools"/>
     <!-- Hibernate4 -->
     <!-- 加载资源文件  其中包含变量信息，必须在Spring配置文件的最前面加载，即第一个加载-->
-    <context:property-placeholder location="classpath:persistence-mysql.properties" />
+    <context:property-placeholder location="classpath:persistence-mysql.properties,classpath:redis.properties" />
 
     <!-- 定义实体管理器工厂
          Jpa配置   LocalContainerEntityManagerFactoryBean这个选项Spring扮演了容器的角色。完全掌管JPA -->
@@ -95,7 +96,22 @@
     </bean>
 
     <!-- 启动对@AspectJ（面向切面）注解的支持 -->
-    <aop:aspectj-autoproxy />
+    <aop:aspectj-autoproxy />.
+
+    <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxIdle" value="${redis.maxIdle}" />
+        <property name="minEvictableIdleTimeMillis" value="${redis.minEvictableIdleTimeMillis}" />
+        <property name="maxWaitMillis" value="${redis.maxWaitMillis}" />
+        <property name="testOnBorrow" value="${redis.testOnBorrow}" />
+    </bean>
+
+    <bean id="connectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" p:hostName="${redis.host}"  p:port="${redis.port}" p:password="${redis.pass}"  p:poolConfig-ref="poolConfig"/>
+
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+        <property name="connectionFactory"   ref="connectionFactory" />
+    </bean>
+
+
 
 
     <!--<bean id="sessionFactory"-->
