@@ -6,6 +6,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by Maple on 2015/10/22.
  */
@@ -16,7 +19,7 @@ public class RedisHelper {
     public static void main(String args[]){
         Jedis jedis=new Jedis("127.0.0.1");
         jedis.hset("insertd","age","123");
-        System.out.println(jedis.hget("insertd","age"));
+        System.out.println(jedis.hget("insertd", "age"));
 
     }
     /**
@@ -34,9 +37,41 @@ public class RedisHelper {
 
      */
     public boolean set(String key,String value){
-        Long result=redisTemplate.opsForSet().add(key,value);
-        System.out.println(result+"<<<<<<<<====================");
+        redisTemplate.opsForValue().set(key, value);
         return true;
     }
+    public String get(String key){
+        String result=redisTemplate.opsForValue().get(key);
+        return result;
+    }
+    public void Hmset(String key,String filed,String value){
+        redisTemplate.opsForHash().put(key, filed, value);
+    }
+    public String Hmget(String key,String filed){
+       return (String) redisTemplate.opsForHash().get(key,filed);
+    }
+    public void Hmdel(String key,String filed){
+         redisTemplate.opsForHash().delete(key, filed);
+    }
+    public void Ladd(String key,String value){
+        redisTemplate.opsForList().leftPush(key,value);
+    }
+    public List<String> Lget(String key,long end){
+        if(end==0){
+            end=-1;
+        }
+        List<String> meanings = redisTemplate.opsForList().range(key, 0, end);
+        return meanings;
+    }
+
+    public String LDel(String key){
+        return redisTemplate.opsForList().rightPop(key);
+    }
+
+    public boolean del(String key){
+        redisTemplate.delete(key);
+        return true;
+    }
+
 
 }
