@@ -23,6 +23,6 @@ public class RedisTest extends AbstractJUnit4SpringContextTests {
         RedisHelper redisHelper;
         @Test
         public void testSet(){
-            redisHelper.set("n2ame","ÕÅÈý");
+            redisHelper.set("n2ame","å¼ ä¸‰");
         }
 }
