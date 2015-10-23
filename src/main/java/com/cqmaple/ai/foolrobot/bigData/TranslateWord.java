@@ -16,12 +16,19 @@ public class TranslateWord {
     @Autowired
     RedisHelper redisHelper;
 
-    public void translate(String chinese){
-        if(redisHelper.Hmget("MS-Translated",chinese)==null){
-            try {
+    public  void translate(String chinese){
+        String have;
+        synchronized (this){
+             have=redisHelper.Hmget("MS-Translated", chinese);
+             if(have==null) {
+                 redisHelper.Hmset("MS-Translated",chinese,"have");
+             }
+        }
+        if(have==null){
+            try{
                 String  en = ConnectHelper.chan2en(chinese);
-                System.out.println(Thread.currentThread().getName() + " 翻译完成：" + chinese+" 英文:"+en);
-                redisHelper.Hmset("MS-Translated",chinese,"have");
+                System.out.println(Thread.currentThread().getName() + " 翻译完成：" + chinese + " 英文:"+en);
+
                 redisHelper.Ladd("MS-Translated-word",chinese+";"+en);
             } catch (IOException e) {
                 e.printStackTrace();

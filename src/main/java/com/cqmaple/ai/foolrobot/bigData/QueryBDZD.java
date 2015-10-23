@@ -14,11 +14,19 @@ public class QueryBDZD {
     RedisHelper redisHelper;
     //查询并保存
     public void queryByKey(String key){
-        if(null==redisHelper.get(key)){
+        String have=null;
+
+        synchronized (this){
+            have=redisHelper.get(key);
+            if(have==null){
+                redisHelper.set(key, "have");
+            }
+        }
+        if(null==have){
             System.out.println(Thread.currentThread().getName() + " 开始查询：" + key);
             String html= ConnectHelper.BDZD(key);
-            redisHelper.set(key, "have");
             redisHelper.Ladd( "MS-Query-key",html);
+
         }
     }
 }

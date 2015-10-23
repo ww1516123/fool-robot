@@ -19,17 +19,22 @@ public class SaveWordMain {
     @Autowired
     WordService wordService;
 
-    public void saveOneHundred(String word){
+    public  void  saveOneHundred(String word){
         try {
             String[] wordall= word.split(";");
-            if(redisHelper.Hmget("MS-word-saved", wordall[0])==null){
-
+            String have;
+            synchronized (this){
+                have=redisHelper.Hmget("MS-word-saved", wordall[0]);
+                if(have==null){
+                    redisHelper.Hmset("MS-word-saved", wordall[0], "have");
+                }
+            }
+            if(have==null){
                 Words temp=new Words();
                 temp.setWords(wordall[0]);
                 temp.seteWords(wordall[1]);
                 System.out.println(Thread.currentThread().getName() + " 开始保存词语:"+wordall[0]);
                 wordService.save(temp);
-                redisHelper.Hmset("MS-word-saved", wordall[0], "have");
             }
         } catch (DuplicateException e1){
 

@@ -22,7 +22,7 @@ public class QueryMain implements  Runnable{
     private ThreadPoolExecutor queryPoolExecutor=new ThreadPoolExecutor(2,2,1, TimeUnit.MINUTES,queue);
     private ThreadPoolExecutor resolveThreads=new ThreadPoolExecutor(3,3,1,TimeUnit.MINUTES,queue);
     private ThreadPoolExecutor translateThreads=new ThreadPoolExecutor(3,3,1,TimeUnit.MINUTES,queue);
-    private ThreadPoolExecutor saveThreads=new ThreadPoolExecutor(5,5,1,TimeUnit.MINUTES,queue);
+    private ThreadPoolExecutor saveThreads=new ThreadPoolExecutor(1,1,1,TimeUnit.MINUTES,queue);
 
     RedisHelper redisHelper;
     QueryBDZD queryBDZD;
@@ -86,16 +86,17 @@ public class QueryMain implements  Runnable{
                 @Override
                 public void run() {
                     while (true) {
-
-                        String loadCount = "0";
-                        if (redisHelper.get("MS-load-searh-count") == null) {
-                            redisHelper.set("MS-load-searh-count", "0");
-                        } else {
-                            loadCount = redisHelper.get("MS-load-searh-count");
-                        }
-                        Long count = Long.valueOf(loadCount);
                         List<String> words;
                         synchronized (WordController.class) {
+                            String loadCount = "0";
+                            if (redisHelper.get("MS-load-searh-count") == null) {
+                                redisHelper.set("MS-load-searh-count", "0");
+                            } else {
+                                loadCount = redisHelper.get("MS-load-searh-count");
+                            }
+                            Long count = Long.valueOf(loadCount);
+
+
                             words = redisHelper.Lget("MS-Resolved-word", (count + 10));
                             redisHelper.set("MS-load-searh-count", Long.valueOf((count + words.size())).toString());
                         }
@@ -159,17 +160,19 @@ public class QueryMain implements  Runnable{
             };
             translateThreads.execute(translateThread);
         }
-        for (int i = 0; i <5 ; i++) {
+        for (int i = 0; i <1 ; i++) {
             Runnable saveThread= new Runnable() {
                 @Override
                 public void run() {
                     while (true){
                         List<String> words;
                         synchronized (WordTypeVo.class) {
+                            //System.out.println(Thread.currentThread().getName() + " 开始保存词语:开始抓");
                             words = redisHelper.Lget("MS-Translated-word", 100);
                             for (int j = 0; j < words.size(); j++) {
                                 redisHelper.LDel("MS-Translated-word");
                             }
+                           // System.out.println(Thread.currentThread().getName() + " 完成:抓");
                         }
                         for (String wordall : words) {
                             saveWordMain.saveOneHundred(wordall);

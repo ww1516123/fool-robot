@@ -27,7 +27,15 @@ public class ResolveBDZD {
 //        for (int i = 0; i <reuslts.size() ; i++) {
 //            redisHelper.LDel(reuslts.get(i));
 //        }
-        if(redisHelper.get(html)==null){
+        String have=redisHelper.get(html);
+
+        synchronized (this){
+            have=redisHelper.get(html);
+            if(have==null){
+                redisHelper.set(html,"have");
+            }
+        }
+        if(have==null){
             List<QuestionDTO> questionDTOs=new ArrayList<QuestionDTO>();
             try {
                 System.out.println(Thread.currentThread().getName() + " 开始一个解析" );
@@ -38,7 +46,7 @@ public class ResolveBDZD {
                 System.out.println(Thread.currentThread().getName()+" 解析出错*********************///////////");
                 System.out.println(Thread.currentThread().getName()+"////////////////////////////////");
             }
-            redisHelper.set(html,questionDTOs.toString());
+
             Set<String> sets=new HashSet<String>();
             for (QuestionDTO q:questionDTOs){
                 sets.addAll(getWords(q.getQuestion()));
