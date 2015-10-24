@@ -6,8 +6,10 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Maple on 2015/10/22.
@@ -17,10 +19,52 @@ public class RedisHelper {
     @Autowired
     private StringRedisTemplate redisTemplate;
     public static void main(String args[]){
-        Jedis jedis=new Jedis("127.0.0.1");
-        jedis.hset("insertd","age","123");
-        System.out.println(jedis.hget("insertd", "age"));
+        Jedis jedis=new Jedis("222.177.14.57",3769);
+        for (int i = 0; i <72000 ; i++) {
+            try {
+                Thread.sleep(1000L);
+                String key=getRandomJianHan(2);
+                System.out.println(Thread.currentThread().getName() + " 开始查询：" + key);
+                String html= ConnectHelper.BDZD(key);
+                jedis.lpush("MS-Query-key", html);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
+        }
+//
+//        System.out.println(jedis.mget("MS-Resolved","重庆"));
+//        System.out.println(jedis.llen("MS-Resolved-words"));
+
+    }
+    /**
+     * 获取指定长度随机简体中文
+     * @param len int
+     * @return String
+     */
+    private static String getRandomJianHan(int len)
+    {
+        String ret="";
+        for(int i=0;i<len;i++){
+            String str = null;
+            int hightPos, lowPos; // 定义高低位
+            Random random = new Random();
+            hightPos = (176 + Math.abs(random.nextInt(39))); //获取高位值
+            lowPos = (161 + Math.abs(random.nextInt(93))); //获取低位值
+            byte[] b = new byte[2];
+            b[0] = (new Integer(hightPos).byteValue());
+            b[1] = (new Integer(lowPos).byteValue());
+            try
+            {
+                str = new String(b, "GBk"); //转成中文
+            }
+            catch (UnsupportedEncodingException ex)
+            {
+                ex.printStackTrace();
+            }
+            ret+=str;
+        }
+        return ret;
     }
     /**
       //execute a transaction
