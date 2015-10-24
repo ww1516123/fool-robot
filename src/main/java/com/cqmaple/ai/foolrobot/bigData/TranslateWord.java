@@ -19,10 +19,16 @@ public class TranslateWord {
     public  void translate(String chinese){
         String have;
         synchronized (this){
-             have=redisHelper.Hmget("MS-Translated", chinese);
-             if(have==null) {
-                 redisHelper.Hmset("MS-Translated",chinese,"have");
-             }
+            try {
+                have=redisHelper.Hmget("MS-Translated", chinese);
+                if(have==null) {
+                    redisHelper.Hmset("MS-Translated",chinese,"have");
+                }
+            }catch (Exception e){
+                have="have";
+                e.printStackTrace();
+            }
+
         }
         if(have==null){
             try{

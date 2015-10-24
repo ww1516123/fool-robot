@@ -19,10 +19,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class QueryMain implements  Runnable{
     private BlockingQueue queue = new LinkedBlockingQueue();
-    private ThreadPoolExecutor queryPoolExecutor=new ThreadPoolExecutor(2,2,1, TimeUnit.MINUTES,queue);
+    private ThreadPoolExecutor queryPoolExecutor=new ThreadPoolExecutor(1,1,1, TimeUnit.MINUTES,queue);
     private ThreadPoolExecutor resolveThreads=new ThreadPoolExecutor(3,3,1,TimeUnit.MINUTES,queue);
-    private ThreadPoolExecutor translateThreads=new ThreadPoolExecutor(3,3,1,TimeUnit.MINUTES,queue);
-    private ThreadPoolExecutor saveThreads=new ThreadPoolExecutor(1,1,1,TimeUnit.MINUTES,queue);
+    private ThreadPoolExecutor translateThreads=new ThreadPoolExecutor(2,2,1,TimeUnit.MINUTES,queue);
+    private ThreadPoolExecutor saveThreads=new ThreadPoolExecutor(2,2,1,TimeUnit.MINUTES,queue);
 
     RedisHelper redisHelper;
     QueryBDZD queryBDZD;
@@ -81,7 +81,7 @@ public class QueryMain implements  Runnable{
 
     @Override
     public void run() {
-        for (int i = 0; i <2 ; i++) {
+        for (int i = 0; i <1 ; i++) {
             Runnable queryThread= new Runnable() {
                 @Override
                 public void run() {
@@ -89,16 +89,14 @@ public class QueryMain implements  Runnable{
                         List<String> words;
                         synchronized (WordController.class) {
                             String loadCount = "0";
-                            if (redisHelper.get("MS-load-searh-count") == null) {
-                                redisHelper.set("MS-load-searh-count", "0");
+                            if (redisHelper.get("MS-load-searh-counts") == null) {
+                                redisHelper.set("MS-load-searh-counts", "0");
                             } else {
-                                loadCount = redisHelper.get("MS-load-searh-count");
+                                loadCount = redisHelper.get("MS-load-searh-counts");
                             }
                             Long count = Long.valueOf(loadCount);
-
-
-                            words = redisHelper.Lget("MS-Resolved-word", (count + 10));
-                            redisHelper.set("MS-load-searh-count", Long.valueOf((count + words.size())).toString());
+                            words = redisHelper.Lget("MS-Resolved-words", (count + 3));
+                            redisHelper.set("MS-load-searh-counts", Long.valueOf((count + words.size())).toString());
                         }
                         for (int i = 0; i < words.size(); i++) {
                             try {
@@ -134,14 +132,14 @@ public class QueryMain implements  Runnable{
             };
             resolveThreads.execute(resolveThread);
         }
-        for (int i = 0; i <3 ; i++) {
+        for (int i = 0; i <2 ; i++) {
             Runnable translateThread= new Runnable() {
                 @Override
                 public void run() {
                     while (true){
                         List<String> words;
                         synchronized (ResponseMsg.class) {
-                            words = redisHelper.Lget("MS-Resolved-word", 100);
+                            words = redisHelper.Lget("MS-Resolved-word", 10);
 
                             for (int j = 0; j < words.size(); j++) {
                                 redisHelper.LDel("MS-Resolved-word");
@@ -160,7 +158,7 @@ public class QueryMain implements  Runnable{
             };
             translateThreads.execute(translateThread);
         }
-        for (int i = 0; i <1 ; i++) {
+        for (int i = 0; i <2 ; i++) {
             Runnable saveThread= new Runnable() {
                 @Override
                 public void run() {
