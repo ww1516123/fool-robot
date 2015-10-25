@@ -20,6 +20,7 @@ public class RedisHelper {
     private StringRedisTemplate redisTemplate;
     public static void main(String args[]){
         Jedis jedis=new Jedis("222.177.14.57",3769);
+
         for (int i = 0; i <72000 ; i++) {
             try {
                 Thread.sleep(1000L);
@@ -98,7 +99,7 @@ public class RedisHelper {
          redisTemplate.opsForHash().delete(key, filed);
     }
     public void Ladd(String key,String value){
-        redisTemplate.opsForList().leftPush(key,value);
+        redisTemplate.opsForList().leftPush(key, value);
     }
     public List<String> Lget(String key,long end){
         if(end==0){
@@ -108,8 +109,17 @@ public class RedisHelper {
         return meanings;
     }
 
+    /**
+     * 设置值
+     * @param key
+     * @param value
+     * @return
+     */
+    public boolean setNx(String key,String value){
+        return redisTemplate.getConnectionFactory().getConnection().setNX(key.getBytes(),value.getBytes());
+    }
     public String LDel(String key){
-        return redisTemplate.opsForList().rightPop(key);
+        return redisTemplate.opsForList().leftPop(key);
     }
 
     public boolean del(String key){
