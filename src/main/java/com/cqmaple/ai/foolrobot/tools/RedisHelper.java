@@ -2,7 +2,11 @@ package com.cqmaple.ai.foolrobot.tools;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 
@@ -19,12 +23,13 @@ public class RedisHelper {
     @Autowired
     private StringRedisTemplate redisTemplate;
     public static void main(String args[]){
-        Jedis jedis=new Jedis("222.177.14.57",3769);
+        Jedis jedis=new Jedis("127.0.0.1",3769);
 
         for (int i = 0; i <72000 ; i++) {
             try {
                 Thread.sleep(1000L);
-                String key=getRandomJianHan(2);
+                Random random=new Random();
+                String key=getRandomJianHan(1+random.nextInt(6));
                 System.out.println(Thread.currentThread().getName() + " 开始查询：" + key);
                 String html= ConnectHelper.BDZD(key);
                 jedis.lpush("MS-Query-key", html);
@@ -99,7 +104,7 @@ public class RedisHelper {
          redisTemplate.opsForHash().delete(key, filed);
     }
     public void Ladd(String key,String value){
-        redisTemplate.opsForList().leftPush(key, value);
+        redisTemplate.opsForList().rightPush(key, value);
     }
     public List<String> Lget(String key,long end){
         if(end==0){
@@ -108,6 +113,16 @@ public class RedisHelper {
         List<String> meanings = redisTemplate.opsForList().range(key, 0, end);
         return meanings;
     }
+    public List<String> Lget(String key,long start,long end){
+        if(end==0){
+            end=-1;
+        }
+        List<String> meanings = redisTemplate.opsForList().range(key, start, end);
+        return meanings;
+    }
+    public String LDel(String key) {
+        return redisTemplate.opsForList().leftPop(key);
+    }
 
     /**
      * 设置值
@@ -115,12 +130,18 @@ public class RedisHelper {
      * @param value
      * @return
      */
-    public boolean setNx(String key,String value){
-        return redisTemplate.getConnectionFactory().getConnection().setNX(key.getBytes(),value.getBytes());
+    public boolean setNx(final String key, final String value){
+        //RedisConnection redisConnection=redisTemplate.getConnectionFactory().getConnection();
+        boolean result = redisTemplate.execute(new RedisCallback<Boolean>() {
+            public Boolean doInRedis(RedisConnection connection)
+                    throws DataAccessException {
+                RedisSerializer<String> serializer = redisTemplate.getStringSerializer();
+                return connection.setNX(key.getBytes(), value.getBytes());
+            }
+        });
+        return result;
     }
-    public String LDel(String key){
-        return redisTemplate.opsForList().leftPop(key);
-    }
+
 
     public boolean del(String key){
         redisTemplate.delete(key);
