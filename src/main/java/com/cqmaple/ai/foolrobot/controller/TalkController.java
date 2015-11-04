@@ -8,12 +8,7 @@ import com.cqmaple.ai.foolrobot.dao.WordTypeDao;
 import com.cqmaple.ai.foolrobot.model.WordType;
 import com.cqmaple.ai.foolrobot.service.WordService;
 import com.cqmaple.ai.foolrobot.service.WordTypeService;
-import com.cqmaple.ai.foolrobot.tools.AutoSaveWordThread;
-import com.cqmaple.ai.foolrobot.tools.ConnectHelper;
-import com.cqmaple.ai.foolrobot.tools.LoopQuestion;
-import com.cqmaple.ai.foolrobot.tools.QuestionDTO;
-import org.ansj.domain.Term;
-import org.ansj.splitWord.analysis.ToAnalysis;
+import com.cqmaple.ai.foolrobot.tools.*;
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,6 +31,8 @@ public class TalkController {
     private WordTypeService wordTypeService;
     @Autowired
     private WordService wordService;
+    @Autowired
+    private RedisHelper redisHelper;
 
     @RequestMapping("/home")
     private String home(){
@@ -73,7 +70,7 @@ public class TalkController {
             responseMsg.setState(responseMsg.ERROR);
             return responseMsg.toString();
         }
-        LoopQuestion loopQuestion=new LoopQuestion(wordService,question);
+        LoopQuestion loopQuestion=new LoopQuestion(wordService,question,redisHelper);
         //启动后台线程进行后台处理
         Thread thread=new Thread(loopQuestion);
         thread.start();
@@ -91,10 +88,10 @@ public class TalkController {
             responseMsg.setState(responseMsg.ERROR);
             return responseMsg.toString();
         }
-        List<Term> terms=ToAnalysis.parse(question);
-        for (Term term:terms){
-            System.out.println("===>"+term.toString());
-        }
+//        List<Term> terms=ToAnalysis.parse(question);
+//        for (Term term:terms){
+//            System.out.println("===>"+term.toString());
+//        }
         return "";
     }
     @RequestMapping("/addWordType")
