@@ -7,7 +7,7 @@
     <groupId>com.cqmaple.ai</groupId>
     <artifactId>fool-robot</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -115,11 +115,6 @@
             <version>1.4.1.RELEASE</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.ansj</groupId>
-            <artifactId>ansj_seg</artifactId>
-            <version>1.4.1</version>
-        </dependency>
 
 
     </dependencies>
@@ -160,10 +155,10 @@
     </build>
 
     <repositories>
-            <repository>
-                <id>mvn-repo</id>
-                <url>http://maven.ansj.org/</url>
-            </repository>
+            <!--<repository>-->
+                <!--<id>mvn-repo</id>-->
+                <!--<url>http://maven.ansj.org/</url>-->
+            <!--</repository>-->
         <repository>
             <id>OSChina Central</id>
             <url>http://maven.oschina.net/content/groups/public/</url>
