@@ -3,8 +3,6 @@ package com.cqmaple.ai.foolrobot.tools;
 import com.cqmaple.ai.foolrobot.common.DuplicateException;
 import com.cqmaple.ai.foolrobot.model.Words;
 import com.cqmaple.ai.foolrobot.service.WordService;
-import org.ansj.domain.Term;
-import org.ansj.splitWord.analysis.ToAnalysis;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -60,6 +58,7 @@ public class SaveThread implements  Runnable {
         System.out.println(new Date().getTime()+"<<<<<<<<<:::"+Thread.currentThread().getName()+"***========****************************");
         System.out.println(new Date().getTime()+"<<<<<<<<<:::"+Thread.currentThread().getName()+"*******************************");
         System.out.println(Thread.currentThread().getName() + " ===========保存单词有："+canBeSave.size());
+
         synchronized (answers){
             if(canBeSave.size()>0){
                 beWords.addAll(canBeSave);
@@ -70,7 +69,9 @@ public class SaveThread implements  Runnable {
             String en= null;
             try {
                 Thread.sleep(100);
-                en = ConnectHelper.chan2en(chinese);
+                synchronized (ConnectHelper.class) {
+                    en = ConnectHelper.chan2en(chinese);
+                }
                 Words words=new Words();
                 words.setWords(chinese);
                 words.seteWords(en);

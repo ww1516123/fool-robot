@@ -3,8 +3,6 @@ package com.cqmaple.ai.foolrobot.tools;
 import com.cqmaple.ai.foolrobot.common.DuplicateException;
 import com.cqmaple.ai.foolrobot.model.Words;
 import com.cqmaple.ai.foolrobot.service.WordService;
-import org.ansj.domain.Term;
-import org.ansj.splitWord.analysis.ToAnalysis;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -73,26 +71,26 @@ public class CollectThread implements  Runnable {
                        int i=0;
                        for (QuestionDTO questionDTO:questionDTOs){
                            String qStr=questionDTO.getAnswer();
-                           List<Term> terms= ToAnalysis.parse(qStr);
-                           for (Term term:terms) {
-                               String chinese = term.getName();
-                               if(chinese.length()>1){
-                                   if (LanguageHelper.isChinese(chinese)) {
-                                       if(inserted.contains(chinese)){
-                                           continue;
-                                       }
-                                       if(i==0){
-                                           question="";
-                                       }else{
-                                           question+=",";
-                                       }
-                                       question+=chinese;
-                                       inserted.add(chinese);
-                                       questions.add(chinese);
-                                       i++;
-                                   }
-                               }
-                           }
+//                           List<Term> terms= ToAnalysis.parse(qStr);
+//                           for (Term term:terms) {
+//                               String chinese = term.getName();
+//                               if(chinese.length()>1){
+//                                   if (LanguageHelper.isChinese(chinese)) {
+//                                       if(inserted.contains(chinese)){
+//                                           continue;
+//                                       }
+//                                       if(i==0){
+//                                           question="";
+//                                       }else{
+//                                           question+=",";
+//                                       }
+//                                       question+=chinese;
+//                                       inserted.add(chinese);
+//                                       questions.add(chinese);
+//                                       i++;
+//                                   }
+//                               }
+//                           }
                        }
 
                    }

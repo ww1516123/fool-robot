@@ -1,8 +1,6 @@
 package com.cqmaple.ai.foolrobot.tools;
 
 import com.cqmaple.ai.foolrobot.service.WordService;
-import org.ansj.domain.Term;
-import org.ansj.splitWord.analysis.ToAnalysis;
 
 import java.util.HashSet;
 import java.util.List;
@@ -24,13 +22,21 @@ public class LoopQuestion implements Runnable {
     private HtmlContents htmlcs=new HtmlContents();
     private Answers answers=new Answers();
     private String word;
+    private RedisHelper redisHelper;
 
     private ThreadPoolExecutor threadPoolExecutor=new ThreadPoolExecutor(1,1,1,TimeUnit.MINUTES,queue);
-    private ThreadPoolExecutor resolveThreads=new ThreadPoolExecutor(1,1,1,TimeUnit.MINUTES,queue);
-    private ThreadPoolExecutor saveThreads=new ThreadPoolExecutor(2,2,1,TimeUnit.MINUTES,queue);
+    private ThreadPoolExecutor resolveThreads=new ThreadPoolExecutor(2,2,1,TimeUnit.MINUTES,queue);
+    private ThreadPoolExecutor saveThreads=new ThreadPoolExecutor(5,5,1,TimeUnit.MINUTES,queue);
+
     public LoopQuestion(WordService wordService, String word) {
         this.wordService = wordService;
         this.word = word;
+    }
+
+    public LoopQuestion(WordService wordService, String word, RedisHelper redisHelper) {
+        this.wordService = wordService;
+        this.word = word;
+        this.redisHelper = redisHelper;
     }
 
     @Override
@@ -46,21 +52,21 @@ public class LoopQuestion implements Runnable {
             //获取单个回答
             String qStr=questionDTO.getAnswer();
             //回答分词
-            List<Term> terms= ToAnalysis.parse(qStr);
-            for (Term term:terms) {
-                //分别入库
-                String chinese = term.getName();
-                if(chinese.length()>1){
-                    //判断是否中文
-                    if (LanguageHelper.isChinese(chinese)) {
-                        //开启线程
-                        searchChinese.add(chinese);
-                    }
-                    collectThread =new CollectThread(searchChinese,searched,inserted,htmlcs);
-
-
-                }
-            }
+//            List<Term> terms= ToAnalysis.parse(qStr);
+//            for (Term term:terms) {
+//                //分别入库
+//                String chinese = term.getName();
+//                if(chinese.length()>1){
+//                    //判断是否中文
+//                    if (LanguageHelper.isChinese(chinese)) {
+//                        //开启线程
+//                        searchChinese.add(chinese);
+//                    }
+//                    collectThread =new CollectThread(searchChinese,searched,inserted,htmlcs);
+//
+//
+//                }
+//            }
             if(i>10){
                 break;
             }
@@ -68,10 +74,12 @@ public class LoopQuestion implements Runnable {
         threadPoolExecutor.execute(collectThread);
         answers.setSearchWord(searchChinese);
 
-        ResolveThread resolveThread=new ResolveThread(answers,htmlcs);
-        resolveThreads.execute(resolveThread);
-        //添加保存线程
         for (int j = 0; j <2 ; j++) {
+            ResolveThread resolveThread = new ResolveThread(answers, htmlcs,redisHelper);
+            resolveThreads.execute(resolveThread);
+        }
+        //添加保存线程
+        for (int j = 0; j <5 ; j++) {
             SaveThread saveThread=new SaveThread(wordService,answers);
             saveThreads.execute(saveThread);
         }
