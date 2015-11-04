@@ -3,8 +3,6 @@ package com.cqmaple.ai.foolrobot.tools;
 import com.cqmaple.ai.foolrobot.common.DuplicateException;
 import com.cqmaple.ai.foolrobot.model.Words;
 import com.cqmaple.ai.foolrobot.service.WordService;
-import org.ansj.domain.Term;
-import org.ansj.splitWord.analysis.ToAnalysis;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,29 +38,29 @@ public class AutoSaveWordThread implements  Runnable {
 
     }
     private void saveWords(String str) {
-        List<Term> terms= ToAnalysis.parse(str);
-        //对提问进行分词
-        for (Term term:terms){
-            String chinese=term.getName();
-            if(LanguageHelper.isChinese(chinese)){
-                String en= null;
-                try {
-                    en = ConnectHelper.chan2en(chinese);
-                    Words words=new Words();
-                    words.setWords(chinese);
-                    words.seteWords(en);
-                    wordService.save(words);
-                } catch (IOException e) {
-                   // e.printStackTrace();
-                } catch (URISyntaxException e) {
-                    //e.printStackTrace();
-                }catch (DuplicateException e) {
-                    //e.printStackTrace();
-                }catch (NullPointerException e){
-
-                }
-            }
-        }
+//        List<Term> terms= ToAnalysis.parse(str);
+//        //对提问进行分词
+//        for (Term term:terms){
+//            String chinese=term.getName();
+//            if(LanguageHelper.isChinese(chinese)){
+//                String en= null;
+//                try {
+//                    en = ConnectHelper.chan2en(chinese);
+//                    Words words=new Words();
+//                    words.setWords(chinese);
+//                    words.seteWords(en);
+//                    wordService.save(words);
+//                } catch (IOException e) {
+//                   // e.printStackTrace();
+//                } catch (URISyntaxException e) {
+//                    //e.printStackTrace();
+//                }catch (DuplicateException e) {
+//                    //e.printStackTrace();
+//                }catch (NullPointerException e){
+//
+//                }
+//            }
+//        }
     }
 
 
