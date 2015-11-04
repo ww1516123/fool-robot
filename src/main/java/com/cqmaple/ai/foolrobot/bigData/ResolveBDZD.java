@@ -4,8 +4,9 @@ import com.cqmaple.ai.foolrobot.tools.ConnectHelper;
 import com.cqmaple.ai.foolrobot.tools.LanguageHelper;
 import com.cqmaple.ai.foolrobot.tools.QuestionDTO;
 import com.cqmaple.ai.foolrobot.tools.RedisHelper;
-import org.ansj.domain.Term;
-import org.ansj.splitWord.analysis.ToAnalysis;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import sun.security.provider.MD5;
@@ -31,9 +32,10 @@ public class ResolveBDZD {
 //        }
         String have;
         synchronized (this){
-            have=redisHelper.get(MD5(html));
+            Document doc = Jsoup.parse(html);
+            have=redisHelper.get(MD5( doc.text()));
             if(have==null){
-                redisHelper.set(MD5(html),"have");
+                redisHelper.set(MD5( doc.text()),"have");
             }
         }
         if(have==null){
@@ -59,7 +61,7 @@ public class ResolveBDZD {
            for(String word:sets){
                System.out.println(Thread.currentThread().getName() + " 开始存放:"+word );
                redisHelper.Ladd("MS-Resolved-word",word);
-               redisHelper.Ladd("MS-Resolved-words",word);
+                   redisHelper.Ladd("MS-Resolved-words",word);
            }
         }
 
@@ -69,21 +71,21 @@ public class ResolveBDZD {
 
     private Set<String> getWords(String str){
         Set<String> sets=new HashSet<String>();
-        List<Term> terms= ToAnalysis.parse(str);
-        //对提问进行分词
-        for (Term term:terms) {
-            String chinese = term.getName();
-            if(!LanguageHelper.isChinese(chinese)){
-                continue;
-            }
-            //这里需要判断重复
-            if (redisHelper.Hmget("MS-Resolved2",chinese)!=null) {
-                //System.out.println(Thread.currentThread().getName()+"========================&&&&&&保存前发现重复+" + chinese);
-                continue;
-            }
-            redisHelper.Hmset("MS-Resolved2",chinese,"have");
-            sets.add(chinese);
-        }
+//        List<Term> terms= ToAnalysis.parse(str);
+//        //对提问进行分词
+//        for (Term term:terms) {
+//            String chinese = term.getName();
+//            if(!LanguageHelper.isChinese(chinese)){
+//                continue;
+//            }
+//            //这里需要判断重复
+//            if (redisHelper.Hmget("MS-Resolved2",chinese)!=null) {
+//                //System.out.println(Thread.currentThread().getName()+"========================&&&&&&保存前发现重复+" + chinese);
+//                continue;
+//            }
+//            redisHelper.Hmset("MS-Resolved2",chinese,"have");
+//            sets.add(chinese);
+//        }
         return sets;
     }
     public final static String MD5(String s) {
